@@ -1,13 +1,89 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
 </head>
+
 <body>
-<iframe width="100%" height="300" src="//jsfiddle.net/6yfw03dL/2/embedded/result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>    
+    <link href="https://openlayers.org/en/v4.6.5/css/ol.css" rel="stylesheet" />
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+    <div id="map" class="map"></div>
+    <script>
+
+
+
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+
+                var radius = prompt("Enter radius in km");
+
+                if (radius === null) {
+                    radius = 1;
+                }
+
+                var currentPosition = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                console.log(currentPosition);
+
+                var map = new ol.Map({
+                    target: 'map',
+                    layers: [
+                        new ol.layer.Tile({
+                            source: new ol.source.OSM()
+                        })
+                    ],
+                    view: new ol.View({
+                        center: ol.proj.fromLonLat([currentPosition.lng, currentPosition.lat]),
+                        zoom: 11
+                    })
+                });
+                var centerLongitudeLatitude = ol.proj.fromLonLat([currentPosition.lng, currentPosition.lat]);
+                console.log(radius * 1000);
+                var layer = new ol.layer.Vector({
+                    source: new ol.source.Vector({
+                        projection: 'EPSG:4326',
+                        // radius = 4000 meters
+                        features: [new ol.Feature(new ol.geom.Circle(centerLongitudeLatitude, radius * 1000))]
+                    }),
+                    style: [
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: 'blue',
+                                width: 3
+                            }),
+                            fill: new ol.style.Fill({
+                                color: 'rgba(0, 0, 255, 0.1)'
+                            })
+                        })
+                    ]
+                });
+                map.addLayer(layer);
+            })
+        }
+    </script>
 </body>
+
 </html>
